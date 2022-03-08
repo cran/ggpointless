@@ -1,0 +1,137 @@
+---
+title: "Introduction to ggpointless"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to ggpointless}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dev = "ragg_png" # <3
+)
+library(ggpointless)
+```
+
+## Add some points 
+`ggpointless` is a small extension of the [`ggplot2`](https://ggplot2.tidyverse.org/). The goal is to easily add minimal emphasis to your plots. 
+
+```{r default}
+library(ggplot2)
+library(ggpointless)
+
+x <- seq(-pi, pi, length.out = 100)
+y <- outer(x, 1:5, function(x, y) sin(x*y))
+
+df1 <- data.frame(
+  var1 = x,
+  var2 = rowSums(y)
+)
+
+p <- ggplot(df1, aes(x = var1, y = var2))
+p + geom_pointless(location = c("first", "last", "minimum", "maximum"))
+```
+
+As you see, just adding `geom_pointless()` to `ggplot(...)` is not terribly useful on its own but when it teams up with `geom_line()` and friends, hopefully.
+
+
+```{r location}
+p <- p + geom_line()
+p + geom_pointless(location = "all", size = 3)
+```
+
+
+`geom_pointless()` behaves like `geom_point()` does with the addition of a `location` argument. You can set it to `"first"`, `"last"`, the default, `"minimum"`, `"maximum"`, and `"all"`; where `"all"` is just shorthand to select `"first"`, `"last"`, `"minimum"` and `"maximum"`.  
+
+In addition, you can use the computed variable `location` and map it to an aesthetic, e.g. `color`.  
+
+```{r color}
+p + geom_pointless(aes(color = after_stat(location)),
+                   location = "all",
+                   size = 3) +
+  theme(legend.position = "bottom")
+```
+
+### Order and orientation
+
+The locations are determined in the order in which they appear in the data, like `geom_path()` does compared to `geom_line()`. This can be seen in the next example, with sample data kindly taken from the [`geomtextpath`](https://github.com/AllanCameron/geomtextpath/#using-geomtextpath) package:
+
+```{r spiral, fig.show='hold'}
+x <- seq(5, -1, length.out = 1000) * pi
+spiral <- data.frame(var1 = sin(x) * 1:1000, 
+                     var2 = cos(x) * 1:1000)
+
+p <- ggplot(spiral) +
+  geom_path() +
+  coord_equal(xlim = c(-1000, 1000), ylim = c(-1000, 1000)) +
+  theme(legend.position = "none")
+
+p + aes(x = var1, y = var2) +
+  geom_pointless(aes(color = after_stat(location)),
+                 location = "all",
+                 size = 3) +
+  labs(subtitle = "orientation = 'x'")
+
+p + aes(y = var1, x = var2) +
+  geom_pointless(aes(color = after_stat(location)),
+                 location = "all",
+                 size = 3) +
+  labs(subtitle = "orientation = 'y'")
+```
+
+As you see from the first of the last two examples `"first"` and `"minimum"` overlap, and `"first"` wins over `"minimum"`. If `location` is set to `"all"`, then the order in which points are plotted from top to bottom is: `"first"` > `"last"` > `"minimum"` > `"maximum"`. 
+
+Otherwise, the order is determined as specified in the `location` argument, which also applies to the order of the legend key labels.
+
+```{r overplotting, fig.show='hold'}
+df2 <- data.frame(var1 = 1:2,
+                  var2 = 1:2)
+p <- ggplot(df2, aes(x = var1, y = var2)) +
+  geom_path() +
+  coord_equal()
+
+# same as location = 'all'
+p + geom_pointless(aes(color = after_stat(location)),
+                   location = c("first", "last", "minimum", "maximum"),
+                   size = 3) +
+  labs(subtitle = "same as location = 'all'")
+# reversed order
+p + geom_pointless(aes(color = after_stat(location)),
+                   location = c("maximum", "minimum", "last", "first"),
+                   size = 3) +
+  labs(subtitle = "custom order")
+# same as location = 'all' again
+p + geom_pointless(aes(color = after_stat(location)),
+                   location = c("maximum", "minimum", "last", "first", "all"),
+                   size = 3) +
+  labs(subtitle = "same as location = 'all' again")
+```
+
+
+## Pick another geom
+
+Just like all `stat_*` functions, `stat_pointless()` has a default geom, which is `"point"`. This means in reverse that you can highlight e.g. minimum and maximum in another way, for example with a horizontal line.
+
+```{r stat}
+set.seed(42)
+ggplot(data.frame(x = 1:10, y = sample(1:10)), aes(x, y)) + 
+  geom_line() + 
+  stat_pointless(
+    aes(yintercept = y, color = after_stat(location)),
+    location = c("minimum", "maximum"),
+    geom = "hline"
+    ) + 
+  guides(color = guide_legend(reverse = TRUE))
+```
+
+## Data
+
+The `ggpointless` package contains two data sets:
+
+1. `co2_ml` : [CO~2~ records taken at Mauna Loa](https://gml.noaa.gov/ccgg/trends/data.html)
+2. `covid_vac` : [COVID-19 Cases and Deaths by Vaccination Status](https://covid.cdc.gov/covid-data-tracker/#rates-by-vaccine-status)
+
+See the `vignette("examples")` for possible use cases.
