@@ -5,41 +5,61 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ggpointless)](https://CRAN.R-project.org/package=ggpointless)
+[![R-CMD-check](https://github.com/flrd/ggpointless/workflows/R-CMD-check/badge.svg)](https://github.com/flrd/ggpointless/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/flrd/ggpointless/branch/main/graph/badge.svg)](https://app.codecov.io/gh/flrd/ggpointless?branch=main)
-[![R-CMD-check](https://github.com/flrd/ggpointless/workflows/R-CMD-check/badge.svg)](https://github.com/flrd/ggpointless/actions)
+<!-- [![Downloads](http://cranlogs.r-pkg.org/badges/ggpointless)](http://www.r-pkg.org/pkg/ggpointless) -->
+
 <!-- badges: end -->
 
 `ggpointless` is an extension of the
-[`ggplot2`](https://ggplot2.tidyverse.org/) library making it easy to
-add minimal emphasis to your plots by means of a point layer. You can
-highlight the first, or last observations, sample minimum and maximum
-with the goal to provide some additional context. Or just some visual
-sugar.
+[`ggplot2`](https://ggplot2.tidyverse.org/) library providing additional
+layers. The following functions are implemented in this small package:
+
+-   `geom_pointless()` / `stat_pointless()`: functions that are making
+    it easy to add minimal emphasis to your plots by means of a point
+    layer.
+
+-   `geom_lexis()` / `stat_lexis()`: a layer to plot a 45° ‘lifeline’ of
+    an event
 
 ## Installation
 
-You can install the development version of `ggpointless` from
-[GitHub](https://github.com/) with:
-
 ``` r
+install.packages("ggpointless")
+# Or install the development version
 # install.packages("devtools")
 devtools::install_github("flrd/ggpointless")
 ```
 
-## Usage
+## Using ggpointless
 
-There are two functions in this small package: `geom_pointless()`, which
-is powered by `stat_pointless()`. `geom_pointless()` behaves like
+Once you have installed the package, simply attach it by calling:
+
+``` r
+library(ggpointless)
+```
+
+The main functions in this package are `geom_pointless()` and
+`geom_lexis()`. They work like you are used to from other `geom_*`
+functions.
+
+### geom_pointless
+
+Using the functions `geom_pointless()`, which is a constructor for
+`stat_pointless()`, you can highlight the first, or last observations,
+sample minimum and maximum with the goal to provide some additional
+context. Or just some visual sugar. `geom_pointless()` behaves like
 `geom_point()` does with the addition of a `location` argument. You can
 set it to `"first"`, `"last"` (default), `"minimum"`, `"maximum"`, and
 `"all"`, where `"all"` is just shorthand to select `"first"`, `"last"`,
 `"minimum"` and `"maximum"`.
 
-See the `vignette("ggpointless")` for more details.
-
 ``` r
-x <- seq(-pi, pi, length.out = 100)
+cols <- c('#f4ae1b', '#d77e7b', '#a84dbd', '#311dfc')
+x <- seq(-pi, pi, length.out = 500)
 y <- outer(x, 1:5, function(x, y) sin(x*y))
 
 df1 <- data.frame(
@@ -52,22 +72,56 @@ ggplot(df1, aes(x = var1, y = var2)) +
   geom_pointless(aes(color = after_stat(location)),
                  location = "all",
                  size = 3) +
-  scale_color_manual(values = c('#f4ae1b', '#d77e7b', '#a84dbd', '#311dfc')) +
+  scale_color_manual(values = cols) +
   theme_minimal()
 ```
 
-<img src="man/figures/README-hello_world-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-hello-world-1.png" width="100%" style="display: block; margin: auto;" />
+
+### geom_lexis
+
+`geom_lexis()` is a combination of a segment and a point layer. Given a
+start value and an end value, this geom draws a 45° line which indicates
+the duration of an event. Required are `x` and `xend` aesthetics, `y`
+and `yend` coordinates will be calculated for you.
+
+``` r
+df2 <- data.frame(
+  key = c("A", "B", "B", "C", "D"),
+  x = c(0, 1, 6, 5, 6),
+  xend = c(5, 4, 10, 8, 10)
+)
+
+ggplot(df2, aes(x = x, xend = xend, color = key)) +
+  geom_lexis(aes(linetype = after_stat(type)), size = .5, point_size = 3) +
+  coord_equal() +
+  scale_x_continuous(breaks = c(df2$x, df2$xend)) +
+  scale_color_manual(values = cols) +
+  scale_linetype_identity() +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+```
+
+<img src="man/figures/README-geom-lexis-1.png" width="100%" style="display: block; margin: auto;" />
+
+See the
+[`vignette("ggpointless")`](https://flrd.github.io/ggpointless/articles/ggpointless.html)
+for more details.
 
 ## Data
 
-The `ggpointless` package contains two data sets:
+The `ggpointless` package contains the following data sets:
 
-1.  `co2_ml` : [CO<sub>2</sub> records taken at Mauna Loa,
-    Hawaii](https://gml.noaa.gov/ccgg/trends/data.html)
+1.  `co2_ml` : [CO<sub>2</sub> records taken at Mauna
+    Loa](https://gml.noaa.gov/ccgg/trends/data.html)
 2.  `covid_vac` : [COVID-19 Cases and Deaths by Vaccination
     Status](https://covid.cdc.gov/covid-data-tracker/#rates-by-vaccine-status)
+3.  `female_leaders` : [Elected and appointed female heads of state and
+    government](https://en.wikipedia.org/w/index.php?title=List_of_elected_and_appointed_female_heads_of_state_and_government&oldid=1078024588)
 
-See the `vignette("examples")` for possible use cases.
+See the
+[`vignette("examples")`](https://flrd.github.io/ggpointless/articles/examples.html)
+for possible use cases.
 
 ## Code of Conduct
 

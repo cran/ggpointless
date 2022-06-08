@@ -5,7 +5,7 @@
 \alias{covid_vac}
 \title{Rates of COVID-19 Cases and Deaths by Vaccination Status}
 \format{
-A data frame with 146 rows and 4 variables:
+A data frame with 146 rows and 4 variables
 \describe{
 \item{date}{Week of data collection}
 \item{incidence}{COVID-19 cases and deaths, standardized by age}
@@ -14,7 +14,8 @@ A data frame with 146 rows and 4 variables:
 }
 }
 \source{
-Centers for Disease Control and Prevention Rates of COVID-19 Cases and Deaths by Vaccination Status
+Centers for Disease Control and Prevention,
+Rates of COVID-19 Cases and Deaths by Vaccination Status
 
 \url{https://covid.cdc.gov/covid-data-tracker/#rates-by-vaccine-status}
 }
