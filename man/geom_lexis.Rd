@@ -3,7 +3,7 @@
 \name{geom_lexis}
 \alias{geom_lexis}
 \alias{stat_lexis}
-\title{Lexis charts}
+\title{Display events of different cohorts in form of a lexis charts}
 \usage{
 geom_lexis(
   mapping = NULL,
@@ -15,6 +15,15 @@ geom_lexis(
   gap_filler = TRUE,
   lineend = "round",
   linejoin = "round",
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+stat_lexis(
+  mapping = NULL,
+  data = NULL,
+  ...,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE
@@ -76,14 +85,14 @@ the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 }
 \description{
 This geom can be used to plot 45° lifelines for a cohort.
-Lexis diagrams are used by demographers for more than a century
-and they are named after Wilhelm Lexis. They are a combination
-of a segment, starting at 0 with a dot at the end.
+Lexis diagrams are named after Wilhelm Lexis and used by demographers
+for more than a century.
 }
 \details{
-This geom draws 45° lines from the start to the end of a 'lifetime'. Besides
-\code{y} and \code{yend} coordinates this geom creates one additional variable called
-\code{type} in the layer data. You might want to map to an aesthetic with
+This geom draws 45° lines from the start to the end of a 'lifetime'. It is
+a combination of a segment, and a point.
+Besides \code{y} and \code{yend} coordinates this geom creates one additional variable
+called \code{type} in the layer data. You might want to map to an aesthetic with
 \code{\link[ggplot2:aes_eval]{ggplot2::after_stat()}}, see Examples section and \code{vignette("ggpointless")}
 for more details.
 
@@ -92,7 +101,7 @@ Rows in your data with either missing \code{x} or \code{xend} values will be rem
 }
 \section{Aesthetics}{
 
-geom_pointless() understands the following aesthetics (required
+geom_lexis() understands the following aesthetics (required
 aesthetics are in bold):
 \itemize{
 \item \strong{x}

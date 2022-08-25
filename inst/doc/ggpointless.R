@@ -60,10 +60,10 @@ p + aes(y = var1, x = var2) +
 
 ## ----overplotting-------------------------------------------------------------
 cols <- c(
-  "first" = "#f8766d", 
-  "last" = "#7cae00", 
-  "minimum" = "#00bfc4", 
-  "maximum" = "#c77cff" 
+  "first" = "#f8766d",
+  "last" = "#7cae00",
+  "minimum" = "#00bfc4",
+  "maximum" = "#c77cff"
 )
 
 df2 <- data.frame(
@@ -126,9 +126,9 @@ p + geom_lexis(gap_filler = FALSE)
 
 ## ----after_stat---------------------------------------------------------------
 p + geom_lexis(
-  aes(linetype = after_scale(type)), 
+  aes(linetype = after_scale(type)),
   point_show = FALSE
-  ) +
+) +
   scale_linetype_identity()
 
 ## ----numeric------------------------------------------------------------------
@@ -160,14 +160,28 @@ p2 <- ggplot(df2, aes(x = start, xend = end, group = key)) +
   labs(y = "seconds") +
   coord_fixed()
 
-p1; p2
+p1
+p2
 
 ## ----transformation, fig.show='hold'------------------------------------------
 # years, roughly
 p1 +
   scale_y_continuous(
-    breaks = 0:3*365.25,                   # or for p2: 0:3*365.25*86400 
+    breaks = 0:3 * 365.25, # or for p2: 0:3*365.25*86400
     labels = function(i) floor(i / 365.25) # floor(i / 365.25*86400)
-    ) +
+  ) +
   labs(y = "years")
+
+## ----geom-chaikin-intro, fig.show='hold'--------------------------------------
+set.seed(42)
+dat <- data.frame(
+  x = seq.int(10),
+  y = sample(15:30, 10)
+)
+
+p1 <- ggplot(dat, aes(x, y)) +
+  geom_line(linetype = "12")
+
+p1 +
+  geom_chaikin()
 

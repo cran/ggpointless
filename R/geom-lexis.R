@@ -1,12 +1,12 @@
-#' Lexis charts
+#' Display events of different cohorts in form of a lexis charts
 #'
+#' @description
 #' This geom can be used to plot 45° lifelines for a cohort.
-#' Lexis diagrams are used by demographers for more than a century
-#' and they are named after Wilhelm Lexis. They are a combination
-#' of a segment, starting at 0 with a dot at the end.
+#' Lexis diagrams are named after Wilhelm Lexis and used by demographers
+#' for more than a century.
 #'
 #' @section Aesthetics:
-#' geom_pointless() understands the following aesthetics (required
+#' geom_lexis() understands the following aesthetics (required
 #' aesthetics are in bold):
 #'
 #' - **x**
@@ -19,6 +19,7 @@
 #' - size
 #' - linetype
 #' - stroke
+#'
 #' @inheritParams ggplot2::layer
 #' @inheritParams ggplot2::geom_point
 #' @param point_show logical. Should a point be shown at the end
@@ -29,10 +30,12 @@
 #' @param point_colour color of a point
 #' @param gap_filler logical. Should gaps be filled?
 #' TRUE by default
+#'
 #' @details
-#' This geom draws 45° lines from the start to the end of a 'lifetime'. Besides
-#' `y` and `yend` coordinates this geom creates one additional variable called
-#' `type` in the layer data. You might want to map to an aesthetic with
+#' This geom draws 45° lines from the start to the end of a 'lifetime'. It is
+#' a combination of a segment, and a point.
+#' Besides `y` and `yend` coordinates this geom creates one additional variable
+#' called `type` in the layer data. You might want to map to an aesthetic with
 #' [ggplot2::after_stat()], see Examples section and `vignette("ggpointless")`
 #' for more details.
 #'
