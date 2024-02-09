@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -303,7 +303,7 @@ p3 <- ggplot(
 )
 p3 <- p3 + geom_lexis(
   aes(linetype = after_stat(type)),
-  point_size = 1
+  size = 1
 )
 
 # coord
@@ -347,6 +347,6 @@ p3 <- p3 +
     inherit.aes = FALSE,
     show.legend = FALSE)
 
-## ---- echo=FALSE, warning=FALSE-----------------------------------------------
+## ----echo=FALSE, warning=FALSE------------------------------------------------
 p3
 

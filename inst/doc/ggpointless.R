@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -126,7 +126,7 @@ p + geom_lexis(gap_filler = FALSE)
 
 ## ----after_stat---------------------------------------------------------------
 p + geom_lexis(
-  aes(linetype = after_scale(type)),
+  aes(linetype = after_stat(type)),
   point_show = FALSE
 ) +
   scale_linetype_identity()
@@ -143,7 +143,7 @@ ggplot(df1, aes(x = start, xend = end, group = key)) +
   geom_lexis() +
   coord_fixed()
 
-## ----dates and times, fig.show='hold'-----------------------------------------
+## ----dates-and-times, fig.show='hold'-----------------------------------------
 # Date
 fun <- function(i, class) as.Date(paste0(i, "-01-01"))
 df1[, c("start", "end")] <- lapply(df1[, c("start", "end")], fun)
@@ -184,4 +184,30 @@ p1 <- ggplot(dat, aes(x, y)) +
 
 p1 +
   geom_chaikin()
+
+## ----geom-catenary-intro, fig.show='hold'-------------------------------------
+ggplot(data.frame(x = c(0, 1), y = c(1, 1)), aes(x, y)) +
+  geom_catenary() +
+  ylim(0, 1)
+
+## ----geom-catenary-chainLength, fig.show='hold'-------------------------------
+ggplot(data.frame(x = c(0, 1), y = c(1, 1)), aes(x, y)) +
+  geom_catenary(chainLength = 1.5)  +
+  ylim(0, 1)
+
+## ----geom-catenary-chainLength-two-obs, fig.show='hold'-----------------------
+ggplot(data.frame(x = c(0, 1, 4), y = c(1, 1, 1)), aes(x, y)) +
+  geom_catenary()
+
+## ----geom-catenary-chainLength-minimum, fig.show='hold'-----------------------
+ggplot(data.frame(x = c(0, 1, 4), y = c(1, 1, 1)), aes(x, y)) +
+  geom_catenary(chainLength = 4)
+
+## ----geom-catenary-chainLength-individual, fig.show='hold'--------------------
+ggplot(data.frame(x = c(0, 1), y = 1),
+       aes(x, y)) + 
+  lapply(2:10, function(chainLength) {
+    geom_catenary(chainLength = chainLength)
+  }
+)
 

@@ -11,7 +11,7 @@ geom_lexis(
   ...,
   point_show = TRUE,
   point_colour = NULL,
-  point_size = NULL,
+  point_size = deprecated(),
   gap_filler = TRUE,
   lineend = "round",
   linejoin = "round",
@@ -30,10 +30,10 @@ stat_lexis(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}} or
-\code{\link[ggplot2:aes_]{aes_()}}. If specified and \code{inherit.aes = TRUE} (the
-default), it is combined with the default mapping at the top level of the
-plot. You must supply \code{mapping} if there is no plot mapping.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
+\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
+at the top level of the plot. You must supply \code{mapping} if there is no plot
+mapping.}
 
 \item{data}{The data to be displayed in this layer. There are three
 options:
@@ -60,7 +60,7 @@ of each segment? TRUE by default}
 
 \item{point_colour}{color of a point}
 
-\item{point_size}{the size of a point}
+\item{point_size}{deprecated, use \code{size}}
 
 \item{gap_filler}{logical. Should gaps be filled?
 TRUE by default}
@@ -113,6 +113,7 @@ aesthetics are in bold):
 \item shape
 \item size
 \item linetype
+\item linewidth
 \item stroke
 }
 }
@@ -136,7 +137,7 @@ p +
 # change point appearance
 p + geom_lexis(
   point_colour = "black",
-  point_size = 3,
+  size = 3,
   shape = 21,
   fill = "white",
   stroke = 1

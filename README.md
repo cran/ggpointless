@@ -7,12 +7,10 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ggpointless)](https://CRAN.R-project.org/package=ggpointless)
-[![R-CMD-check](https://github.com/flrd/ggpointless/workflows/R-CMD-check/badge.svg)](https://github.com/flrd/ggpointless/actions)
+[![R-CMD-check](https://github.com/flrd/ggpointless/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/flrd/ggpointless/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/flrd/ggpointless/branch/main/graph/badge.svg)](https://app.codecov.io/gh/flrd/ggpointless?branch=main)
 ![downloads](http://cranlogs.r-pkg.org/badges/grand-total/ggpointless)
-<!-- [![Downloads](http://cranlogs.r-pkg.org/badges/ggpointless)](http://www.r-pkg.org/pkg/ggpointless) -->
-
 <!-- badges: end -->
 
 `ggpointless` is an extension of the
@@ -21,20 +19,36 @@ layers.
 
 ## Installation
 
+You can install `ggpointless` from CRAN with:
+
 ``` r
 install.packages("ggpointless")
-# Or install the development version
+```
+
+To install the development version from [GitHub](https://github.com/)
+use:
+
+``` r
 # install.packages("devtools")
 devtools::install_github("flrd/ggpointless")
 ```
 
-## Using ggpointless
-
-Once you have installed the package, simply attach it by calling:
+Once you have installed the package, attach it by calling:
 
 ``` r
 library(ggpointless)
 ```
+
+## What will you get
+
+- `geom_pointless()` – emphasizes some observations with points
+- `geom_lexis()` – draws a Lexis diagram
+- `geom_chaikin()` – applies Chaikin’s corner cutting algorithm
+- `geom_catenary()` – draws a catenary curve
+
+See
+[`vignette("ggpointless")`](https://flrd.github.io/ggpointless/articles/ggpointless.html)
+for details and examples.
 
 ### geom_pointless
 
@@ -72,9 +86,9 @@ ggplot(df1, aes(x = var1, y = var2)) +
 ### geom_lexis
 
 `geom_lexis()` is a combination of a segment and a point layer. Given a
-start and an end, this function draws a 45° line which indicates the
-duration of an event. Required are `x` and `xend` aesthetics, `y` and
-`yend` coordinates will be calculated.
+start value and an end value, this function draws a 45° line which
+indicates the duration of an event. Required are `x` and `xend`
+aesthetics, `y` and `yend` coordinates will be calculated.
 
 ``` r
 df2 <- data.frame(
@@ -84,7 +98,7 @@ df2 <- data.frame(
 )
 
 ggplot(df2, aes(x = x, xend = xend, color = key)) +
-  geom_lexis(aes(linetype = after_stat(type)), size = .5, point_size = 3) +
+  geom_lexis(aes(linetype = after_stat(type)), size = 2) +
   coord_equal() +
   scale_x_continuous(breaks = c(df2$x, df2$xend)) +
   scale_color_manual(values = cols) +
@@ -130,9 +144,31 @@ ggplot(mapping = aes(x, y)) +
 
 See also the [`smoothr` package](https://github.com/mstrimas/smoothr/).
 
+### geom_catenary
+
+Draws a flexible curve that simulates a chain or rope hanging loosely
+between two fixed points. By default, a chain length twice the Euclidean
+distance between each x/y combination is used. See
+[`vignette("ggpointless")`](https://flrd.github.io/ggpointless/articles/ggpointless.html)
+for details.
+
+Credit to:
+[dulnan/catenary-curve](https://github.com/dulnan/catenary-curve)
+
+``` r
+ggplot(data.frame(x = 1:5, y = sample(5)),
+       aes(x, y)) + 
+  geom_catenary() +
+  geom_point(size = 3, colour = "#f4ae1b")
+#> Set chainLength to 23.7
+```
+
+<img src="man/figures/README-geom-catenary-1.png" width="100%" style="display: block; margin: auto;" />
+
 ## Data
 
-In addition, `ggpointless` contains the following data sets:
+In addition to the geoms & stats, the following data sets are contained
+in `ggpointless`:
 
 1.  `co2_ml` : [CO<sub>2</sub> records taken at Mauna
     Loa](https://gml.noaa.gov/ccgg/trends/data.html)
@@ -141,13 +177,11 @@ In addition, `ggpointless` contains the following data sets:
 3.  `female_leaders` : [Elected and appointed female heads of state and
     government](https://en.wikipedia.org/w/index.php?title=List_of_elected_and_appointed_female_heads_of_state_and_government&oldid=1078024588)
 
-For more examples see
-[`vignette("ggpointless")`](https://flrd.github.io/ggpointless/articles/ggpointless.html)
-and
+For more examples call
 [`vignette("examples")`](https://flrd.github.io/ggpointless/articles/examples.html).
 
 ## Code of Conduct
 
 Please note that this project is released with a [Contributor Code of
-Conduct](https://github.com/flrd/ggpointless/blob/master/conduct.md). By
-participating in this project you agree to abide by its terms.
+Conduct](https://github.com/flrd/ggpointless/blob/main/CODE_OF_CONDUCT.md).
+By participating in this project you agree to abide by its terms.

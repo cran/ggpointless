@@ -2,13 +2,13 @@
 % Please edit documentation in R/ggpointless-package.R
 \docType{package}
 \name{ggpointless-package}
-\alias{ggpointless}
 \alias{ggpointless-package}
-\title{ggpointless: A Small Collection of Geometries, and Stats for 'ggplot2'}
+\alias{ggpointless}
+\title{ggpointless: Additional Geometries and Stats for 'ggplot2'}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A collection of geometries and stats for 'ggplot2'. Currently it supports geom_pointless() which adds minimal emphasis to your plots. Or just some visual sugar. geom_lexis() draws a 45° lifeline of an event that mimics lexis diagrams. geom_chaikin() applies Chaikin's corner cutting algorithm to a path.
+An (aspirational) collection of additional geometries and statistics for 'ggplot2'.
 }
 \seealso{
 Useful links:
@@ -20,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Markus Döring \email{m4rkus.doering@gmail.com}
+\strong{Maintainer}: Markus Döring \email{m4rkus.doering@gmail.com} [copyright holder]
 
 }
 \keyword{internal}
