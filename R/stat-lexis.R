@@ -1,67 +1,48 @@
-#' @export
-#' @rdname geom_lexis
-stat_lexis <- function(mapping = NULL, data = NULL,
-                       ...,
-                       na.rm = FALSE,
-                       show.legend = NA,
-                       inherit.aes = TRUE) {
-  layer(
-    data = data,
-    mapping = mapping,
-    stat = StatLexis,
-    geom = "lexis",
-    position = "identity",
-    show.legend = show.legend,
-    inherit.aes = inherit.aes,
-    params = list(
-      na.rm = na.rm,
-      ...
-    )
-  )
-}
-
-
 #' @rdname ggpointless-ggproto
 #' @format NULL
 #' @usage NULL
 #' @export
-StatLexis <- ggproto("StatLexis", Stat,
+StatLexis <- ggproto(
+  "StatLexis",
+  Stat,
   required_aes = c("x", "xend"),
   default_aes = aes(y = after_stat(y), yend = after_stat(yend)),
-  setup_params = function(data, params) {
-    has_y <- !(is.null(data$y) && is.null(params$y))
-    has_yend <- !(is.null(data$yend) && is.null(params$yend))
-    if (has_y || has_yend) {
-      message("`stat_lexis()` calculates y and yend aesthetics for you.")
+  setup_params = \(data, params) {
+    if (!is.null(data$y) || !is.null(data$yend)) {
+      cli::cli_inform(
+        "{.fn stat_lexis} calculates {.field y} and {.field yend} for you."
+      )
     }
     params
   },
-  compute_group = function(data, scales) {
+  compute_group = \(data, scales) {
+    if (isTRUE(scales$x$is_discrete())) {
+      cli::cli_abort(
+        c(
+          "{.arg x} and {.arg xend} must be continuous variables.",
+          "i" = "A discrete (character or factor) value was detected. \\
+                 Check that all values in {.arg x} and {.arg xend} are numeric."
+        )
+      )
+    }
     get_lexis(data$x, data$xend)
   }
 )
 
-#' Given a start, and end get the 'age' of an event
-#'
-#' @param x A vector of mode numeric
-#' @param xend A vector of mode numeric
-#' @return A data.frame
-#'
+#' @export
+#' @rdname geom_lexis
+stat_lexis <- make_constructor(StatLexis, geom = "lexis")
+
 #' @keywords internal
 get_lexis <- function(x, xend) {
-  if (is.character(x) || is.character(xend)) {
-    stop("`x` and `xend` must be continuous.")
-  }
-
   if (mode(c(x, xend)) != "numeric") {
-    stop("`x` and `xend` must be continuous.")
+    cli::cli_abort("{.arg x} and {.arg xend} must be continuous.")
   }
 
   if (any(x > xend, na.rm = TRUE)) {
-    stop(paste(
-      "For each row in your data, `xend` must",
-      "be greater than `x`"
-    ))
+    cli::cli_abort(
+      "Each {.arg xend} must be greater than or equal to its {.arg x}."
+    )
   }
 
   # get all x-positions

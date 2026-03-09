@@ -1,213 +1,510 @@
-## ----include = FALSE----------------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  dev = "ragg_png" # <3
+  collapse  = TRUE,
+  comment   = "#>",
+  dev       = "ragg_png",
+  dpi       = 300,
+  fig.asp   = 0.618,
+  fig.width = 6,
+  fig.height = 3,
+  fig.align = "center",
+  out.width = "80%"
 )
+
+## ----setup-theme, warning=FALSE-----------------------------------------------
 library(ggpointless)
 
-## ----default_pointless--------------------------------------------------------
-library(ggplot2)
-library(ggpointless)
+# set consistent theme for all plots
+cols <- c("#311dfc", "#a84dbd", "#d77e7b", "#f4ae1b")
+theme_set(
+  theme_minimal() + 
+    theme(legend.position = "bottom") +
+    theme(geom = element_geom(fill = cols[1])) +
+    theme(palette.fill.discrete = c(cols[1], cols[3])) +
+    theme(palette.colour.discrete = cols)
+  )
 
-x <- seq(-pi, pi, length.out = 100)
-y <- outer(x, 1:5, function(x, y) sin(x * y))
+## ----area-fade-economics------------------------------------------------------
+ggplot(economics, aes(date, unemploy)) +
+  geom_area_fade()
 
+## ----area-fade-alpha, fig.height = 3------------------------------------------
+ggplot(economics, aes(date, unemploy)) +
+  geom_area_fade(alpha = 0.75, alpha_fade_to = 0.1)
+
+## ----geom-area-fade-reverse, warning=FALSE------------------------------------
+ggplot(economics, aes(date, unemploy)) +
+  geom_area_fade(alpha = 0, alpha_fade_to = 1)
+
+## ----area-fade-2d, fig.height = 3---------------------------------------------
+set.seed(42)
+ggplot(economics, aes(date, unemploy)) +
+  geom_area_fade(aes(fill = uempmed), colour = cols[1]) +
+  scale_fill_continuous(palette = scales::colour_ramp(cols))
+
+## ----geom-area-fade-multiple-groups-basic, warning=FALSE----------------------
 df1 <- data.frame(
-  var1 = x,
-  var2 = rowSums(y)
+  g = c("a", "a", "a", "b", "b", "b"),
+  x = c(1, 3, 5, 2, 4, 6),
+  y = c(2, 5, 1, 3, 6, 7)
 )
 
-p <- ggplot(df1, aes(x = var1, y = var2))
-p + geom_pointless(location = c("first", "last", "minimum", "maximum"))
+ggplot(df1, aes(x, y, fill = g)) +
+  geom_area_fade()
 
-## ----location-----------------------------------------------------------------
-p <- p + geom_line()
+## ----geom-area-fade-global, warning=FALSE-------------------------------------
+df_alpha_scope <- data.frame(
+  g = c("a", "a", "a", "b", "b", "b"),
+  x = c(1, 3, 5, 2, 4, 6),
+  y = c(1, 2, 1, 9, 10, 8)
+)
+p <- ggplot(df_alpha_scope, aes(x, y, fill = g))
+p + geom_area_fade(
+  alpha_scope = "global", # default
+  position = "identity"
+)
+
+## ----geom-area-fade-group, warning=FALSE--------------------------------------
+p <- ggplot(df_alpha_scope, aes(x, y, fill = g))
+
+# alpha_scope = "group": each group uses the alpha range independently
+p + geom_area_fade(
+  alpha_scope = "group", 
+  position = "identity"
+  )
+
+## ----arch-basic, fig.height = 3-----------------------------------------------
+ggplot(data.frame(x = 1:2, y = c(0, 0)), aes(x, y)) +
+  geom_arch(arch_height = 0.6)
+
+## ----stat-arch-compare, fig.height = 3.5--------------------------------------
+ggplot(data.frame(x = c(0, 2), y = c(0, 0)), aes(x, y)) +
+  stat_arch(arch_height = 0.5, aes(colour = "arch_height = 0.5")) +
+  stat_arch(arch_height = 1.5, aes(colour = "arch_height = 1.5")) +
+  stat_arch(arch_height = 3.0, aes(colour = "arch_height = 3"))
+
+## ----rice-house, fig.height = 3-----------------------------------------------
+rice_house <- data.frame(
+  x = c(0, 1.5, 2.5, 3.5, 5),
+  y = c(0, 1, 1, 1, 0)
+)
+
+ggplot(rice_house, aes(x, y)) +
+  geom_arch(arch_height = 0.15, linewidth = 2, colour = "#333333") +
+  geom_segment(aes(xend = x, yend = 0), colour = "#333333") +
+  geom_hline(yintercept = 0, colour = "#4a7c59", linewidth = 3) +
+  coord_equal() +
+  theme_void() +
+  labs(caption = "Rice House, Eltham (simplified catenary cross-section)")
+
+## ----catenary-basic, fig.height = 3-------------------------------------------
+set.seed(1)
+ggplot(data.frame(x = 1:6, y = sample(6)), aes(x, y)) +
+  geom_catenary() +
+  geom_point(size = 3, colour = "#333333")
+
+## ----catenary-chain-length, fig.height = 3------------------------------------
+ggplot(data.frame(x = c(0, 1), y = c(1, 1)), aes(x, y)) +
+  lapply(c(1.5, 1.75, 2), \(cl) {
+    geom_catenary(chain_length = cl)
+  }) +
+  ylim(0, 1.05) +
+  labs(title = "Increasing chain_length adds more sag")
+
+## ----catenary-sag, fig.height = 3---------------------------------------------
+df_sag <- data.frame(x = c(0, 2, 4, 6), y = c(1, 1, 1, 1))
+
+ggplot(df_sag, aes(x, y)) +
+  geom_catenary(sag = c(0.1, 0.5, 1.2)) +
+  geom_point(size = 3, colour = "#333333") +
+  labs(title = "sag = 0.1, 0.5, 1.2 (left to right)")
+
+## ----catenary-sag-vs-chain-length, fig.height = 3-----------------------------
+df_sag <- data.frame(x = c(0, 2, 4, 6), y = c(1, 1, 1, 1))
+
+ggplot(df_sag, aes(x, y)) +
+  geom_catenary(
+    chain_length = c(2, NA, 3),
+    sag = c(0.1, 0.5, NA)
+  ) +
+  geom_point(size = 3, colour = "#333333") +
+  labs(title = "sag wins over chain_length") +
+  ylim(c(-.25, 1))
+
+## ----chaikin-basic, fig.height = 3--------------------------------------------
+set.seed(42)
+dat <- data.frame(x = seq.int(10), y = sample(15:30, 10))
+
+ggplot(dat, aes(x, y)) +
+  geom_line(linetype = "dashed", colour = "#333333") +
+  geom_chaikin(colour = cols[1])
+
+## ----chaikin-ratio, fig.height = 3--------------------------------------------
+triangle <- data.frame(x = c(0, 0.5, 1), y = c(0, 1, 0))
+
+ggplot(triangle, aes(x, y)) +
+  geom_polygon(fill = NA, colour = "grey70", linetype = "dashed") +
+  geom_chaikin(ratio = 0.10, mode = "closed", aes(colour = "ratio = 0.10")) +
+  geom_chaikin(ratio = 0.25, mode = "closed", aes(colour = "ratio = 0.25")) +
+  geom_chaikin(ratio = 0.50, mode = "closed", aes(colour = "ratio = 0.50")) +
+  coord_equal()
+
+## ----chaikin-iterations-gif, echo=FALSE, out.width="60%", eval=identical(Sys.getenv("IN_PKGDOWN"), "true")----
+# knitr::include_graphics("../man/figures/chaikin_iterations.gif")
+
+## ----chaikin-iterations-static, echo=FALSE, fig.height = 3, fig.align="center", eval=!identical(Sys.getenv("IN_PKGDOWN"), "true")----
+n_pts   <- 5L
+outer_r <- 1
+inner_r <- 0.38
+ang_out <- seq(pi / 2, pi / 2 + 2 * pi, length.out = n_pts + 1L)[seq_len(n_pts)]
+ang_in  <- ang_out + pi / n_pts
+star <- data.frame(
+  x = c(rbind(outer_r * cos(ang_out), inner_r * cos(ang_in))),
+  y = c(rbind(outer_r * sin(ang_out), inner_r * sin(ang_in)))
+)
+
+ggplot(star, aes(x, y)) +
+  geom_polygon(
+    fill = NA, colour = "#333333", linetype = "dotted", linewidth = 0.55
+  ) +
+  stat_chaikin(
+    geom = "polygon", mode = "closed", iterations = 3,
+    fill = "#311dfc", alpha = 0.20, colour = "#311dfc", linewidth = 0.8
+  ) +
+  coord_equal(clip = "off") +
+  labs(x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_line(linetype = "dotted"),
+    axis.text  = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+## ----chaikin-polygon, fig.height = 3.5----------------------------------------
+# An irregular hexagon
+hex <- data.frame(
+  x = c(0.0, 0.4, 1.0, 1.2, 0.9, 0.1),
+  y = c(0.2, 1.0, 0.9, 0.3, -0.2, 0.0)
+)
+
+ggplot(hex, aes(x, y)) +
+  geom_polygon(fill = "grey95", colour = "#333333", linetype = "dashed") +
+  stat_chaikin(geom = "polygon", mode = "closed", fill = cols[1], colour = NA) +
+  coord_equal() +
+  labs(title = "Original polygon (dashed) with smoothed fill (purple)")
+
+## ----fourier-harmonics, fig.height = 3.5--------------------------------------
+set.seed(42)
+n <- 150
+df_f <- data.frame(
+  x = seq(0, 2 * pi, length.out = n),
+  y = sin(seq(0, 2 * pi, length.out = n)) +
+    0.4 * sin(3 * seq(0, 2 * pi, length.out = n)) +
+    rnorm(n, sd = 0.25)
+)
+
+ggplot(df_f, aes(x, y)) +
+  geom_point(alpha = 0.25) +
+  geom_fourier(aes(colour = "n_harmonics = 1"), n_harmonics = 1) +
+  geom_fourier(aes(colour = "n_harmonics = 3"), n_harmonics = 3)
+
+## ----fourier-detrend, fig.height = 3.5----------------------------------------
+set.seed(3)
+x_d <- seq(0, 4 * pi, length.out = 100)
+df_d <- data.frame(
+  x = x_d,
+  y = sin(x_d) + x_d * 0.4 + rnorm(100, sd = 0.2)
+)
+
+ggplot(df_d, aes(x, y)) +
+  geom_point(alpha = 0.35) +
+  geom_fourier(aes(colour = "as is"),
+    n_harmonics = 3
+  ) +
+  geom_fourier(
+    aes(colour = "detrend = 'lm'"),
+    n_harmonics = 3,
+    detrend = "lm") +
+  labs(
+    title = "geom_fourier() w/wo detrending",
+    x = NULL, y = NULL
+  )
+
+## ----fourier-dates-irregular-spacing, fig.height = 3.5------------------------
+df_gap <- data.frame(
+  x = c(1:10, 19:20),
+  y = sin(seq_len(12))
+  )
+ggplot(df_gap, aes(x, y)) + 
+  geom_fourier()
+
+## ----lexis-basic, fig.height = 3.5--------------------------------------------
+df_l <- data.frame(
+  key  = c("A", "B", "B", "C", "D"),
+  x    = c(0, 1, 6, 5, 6),
+  xend = c(5, 4, 10, 8, 10)
+)
+
+p <- ggplot(df_l, aes(x = x, xend = xend, colour = key)) +
+  coord_equal()
+
+p + geom_lexis()
+
+## ----lexis-gap, fig.height = 3.5----------------------------------------------
+p + geom_lexis(gap_filler = FALSE)
+
+## ----lexis-type, fig.height = 3.5---------------------------------------------
+p +
+  stat_lexis(
+    aes(linetype = after_stat(type)),
+    point_colour = "#333333",
+    shape        = 21,
+    fill         = "white",
+    size         = 2.5,
+    stroke       = 0.8
+  ) +
+  scale_linetype_identity()
+
+## ----lexis-dates, fig.height = 3.5--------------------------------------------
+df_dates <- data.frame(
+  key   = c("A", "B"),
+  start = c(2019, 2021),
+  end   = c(2022, 2022)
+)
+df_dates[, c("start", "end")] <- lapply(
+  df_dates[, c("start", "end")],
+  \(i) as.Date(paste0(i, "-01-01"))
+)
+
+ggplot(df_dates, aes(x = start, xend = end, group = key)) +
+  geom_lexis() +
+  scale_y_continuous(
+    breaks = 0:3 * 365.25,
+    labels = \(i) paste0(floor(i / 365.25), " yr")
+  ) +
+  coord_fixed() +
+  labs(y = "Duration")
+
+## ----point-glow-basic, fig.height = 3.5---------------------------------------
+# Basic usage
+ggplot(mtcars, aes(wt, mpg, colour = factor(cyl))) +
+   geom_point_glow()
+
+## ----point-glow-overwrite-params, fig.height = 3.5----------------------------
+# Customizing glow parameters (fixed for all points)
+ggplot(mtcars, aes(wt, mpg, colour = factor(cyl))) +
+  geom_point_glow(
+    glow_alpha = 0.25,
+    glow_colour = "#0833F5",
+    glow_size = 5
+    )
+
+## ----big-dipper, fig.height = 5, fig.width = 7.5, echo = FALSE----------------
+# source: https://de.wikipedia.org/wiki/Gro%C3%9Fer_B%C3%A4r#Sterne
+# colours, coordinates all approximations of course
+big_dipper <- data.frame(
+  star = c(
+    "Megrez",
+    "Dubhe",
+    "Merak",
+    "Phecda",
+    "Megrez",
+    "Alioth",
+    "Mizar",
+    "Alkaid"
+  ),
+  ra_h = c(12.257, 11.062, 11.031, 11.897, 12.257, 12.900, 13.399, 13.792),
+  dec_d = c(57.03, 61.75, 56.38, 53.70, 57.03, 55.96, 54.93, 49.31),
+  mag = c(3.32, 1.81, 2.34, 2.41, 3.32, 1.77, 2.23, 1.86),
+  colour = c("#CFDDFF", "#FFDBBF", "#C7D9FF", "#C8D9FF", "#CFDDFF", "#C7D9FF", "#CBDBFF", "#BAD0FF")
+)
+
+big_dipper$x <- -big_dipper$ra_h
+big_dipper$y <- big_dipper$dec_d
+
+# Linear size mapping: brighter (lower mag) → larger point
+mag_to_size <- \(m) pmax(0.7, (5.5 - m) * 1.0)
+
+ggplot(big_dipper, aes(x = x, y = y)) +
+  geom_path(colour = "#F5F5F5", linewidth = 0.6, alpha = .6) +
+  geom_point_glow(
+    data = big_dipper[-1L, ], # don't plot Megrez a second time
+    aes(x = -ra_h, y = dec_d, size = mag_to_size(mag), colour = colour,
+        alpha = mag),
+    shape = 8,
+    glow_alpha = 0.75
+  ) +
+  scale_alpha_continuous(range = c(1, 0.4), guide = "none") +
+  scale_size_identity() +
+  scale_colour_identity() +
+  geom_text(
+    aes(x = -ra_h, y = dec_d, label = star),
+    colour = "#bbccdd",
+    vjust = -1.5,
+    size = 2.5,
+    check_overlap = TRUE
+  ) +
+  scale_x_continuous(
+    breaks = seq(-14, -8, by = 1),
+    labels = \(x) paste0(abs(x), "h")
+  ) +
+  scale_y_continuous(labels = \(x) paste0(x, "°")) +
+  labs(
+    title = "Big Dipper",
+    x = NULL,
+    y = NULL
+  ) +
+  coord_cartesian(clip = 'off') +
+  theme(
+    panel.background = element_rect(fill = grid::linearGradient(colours = c("#1D2180", "#081849")), colour = NA),
+    plot.background = element_rect(fill = grid::linearGradient(colours = c("#1D2180", "#081849")), colour = NA),
+    panel.grid = element_blank(),
+    text = element_text(colour = "#344B73"),
+    plot.title = element_text(size = 18, face = "bold")
+  )
+
+## ----big-dipper-code, eval = FALSE--------------------------------------------
+# # source: https://de.wikipedia.org/wiki/Gro%C3%9Fer_B%C3%A4r#Sterne
+# # colours, coordinates all approximations of course
+# big_dipper <- data.frame(
+#   star = c(
+#     "Megrez",
+#     "Dubhe",
+#     "Merak",
+#     "Phecda",
+#     "Megrez",
+#     "Alioth",
+#     "Mizar",
+#     "Alkaid"
+#   ),
+#   ra_h = c(12.257, 11.062, 11.031, 11.897, 12.257, 12.900, 13.399, 13.792),
+#   dec_d = c(57.03, 61.75, 56.38, 53.70, 57.03, 55.96, 54.93, 49.31),
+#   mag = c(3.32, 1.81, 2.34, 2.41, 3.32, 1.77, 2.23, 1.86),
+#   colour = c("#CFDDFF", "#FFDBBF", "#C7D9FF", "#C8D9FF", "#CFDDFF", "#C7D9FF", "#CBDBFF", "#BAD0FF")
+# )
+# 
+# big_dipper$x <- -big_dipper$ra_h
+# big_dipper$y <- big_dipper$dec_d
+# 
+# # Linear size mapping: brighter (lower mag) → larger point
+# mag_to_size <- \(m) pmax(0.7, (5.5 - m) * 1.0)
+# 
+# ggplot(big_dipper, aes(x = x, y = y)) +
+#   geom_path(colour = "#F5F5F5", linewidth = 0.6, alpha = .6) +
+#   geom_point_glow(
+#     data = big_dipper[-1L, ], # don't plot Megrez a second time
+#     aes(x = -ra_h, y = dec_d, size = mag_to_size(mag), colour = colour,
+#         alpha = mag),
+#     shape = 8,
+#     glow_alpha = 0.75
+#   ) +
+#   scale_alpha_continuous(range = c(1, 0.4), guide = "none") +
+#   scale_size_identity() +
+#   scale_colour_identity() +
+#   geom_text(
+#     aes(x = -ra_h, y = dec_d, label = star),
+#     colour = "#bbccdd",
+#     vjust = -1.5,
+#     size = 2.5,
+#     check_overlap = TRUE
+#   ) +
+#   scale_x_continuous(
+#     breaks = seq(-14, -8, by = 1),
+#     labels = \(x) paste0(abs(x), "h")
+#   ) +
+#   scale_y_continuous(labels = \(x) paste0(x, "°")) +
+#   labs(title = "Big Dipper", x = NULL, y = NULL) +
+#   coord_cartesian(clip = 'off') +
+#   theme(
+#     panel.background = element_rect(fill = grid::linearGradient(colours = c("#1D2180", "#081849")), colour = NA),
+#     plot.background = element_rect(fill = grid::linearGradient(colours = c("#1D2180", "#081849")), colour = NA),
+#     panel.grid = element_blank(),
+#     text = element_text(colour = "#344B73"),
+#     plot.title = element_text(size = 18, face = "bold")
+#   )
+
+## ----pointless-basic, fig.height = 3------------------------------------------
+x <- seq(-pi, pi, length.out = 100)
+df1 <- data.frame(var1 = x, var2 = rowSums(outer(x, 1:5, \(x, y) sin(x * y))))
+
+p <- ggplot(df1, aes(x = var1, y = var2)) +
+  geom_line()
+
 p + geom_pointless(location = "all", size = 3)
 
-## ----color--------------------------------------------------------------------
-p + geom_pointless(aes(color = after_stat(location)),
-  location = "all",
-  size = 3
-) +
+## ----pointless-colour, fig.height = 3-----------------------------------------
+p +
+  geom_pointless(
+    aes(colour = after_stat(location)),
+    location = "all",
+    size = 3
+  ) +
   theme(legend.position = "bottom")
 
-## ----spiral, fig.show='hold'--------------------------------------------------
+## ----pointless-spiral, fig.height = 3.5, fig.show = 'hold'--------------------
 x <- seq(5, -1, length.out = 1000) * pi
-spiral <- data.frame(
-  var1 = sin(x) * 1:1000,
-  var2 = cos(x) * 1:1000
-)
+spiral <- data.frame(var1 = sin(x) * 1:1000, var2 = cos(x) * 1:1000)
 
-p <- ggplot(spiral) +
+p_spi <- ggplot(spiral) +
   geom_path() +
-  coord_equal(xlim = c(-1000, 1000), ylim = c(-1000, 1000)) +
-  theme(legend.position = "none")
+  coord_equal(xlim = c(-1000, 1000), ylim = c(-1000, 1000))
 
-p + aes(x = var1, y = var2) +
-  geom_pointless(aes(color = after_stat(location)),
-    location = "all",
-    size = 3
-  ) +
+p_spi +
+  aes(x = var1, y = var2) +
+  geom_pointless(aes(colour = after_stat(location)), location = "all", size = 3) +
   labs(subtitle = "orientation = 'x'")
 
-p + aes(y = var1, x = var2) +
-  geom_pointless(aes(color = after_stat(location)),
-    location = "all",
-    size = 3
-  ) +
+p_spi +
+  aes(y = var1, x = var2) +
+  geom_pointless(aes(colour = after_stat(location)), location = "all", size = 3) +
   labs(subtitle = "orientation = 'y'")
 
-## ----overplotting-------------------------------------------------------------
-cols <- c(
-  "first" = "#f8766d",
-  "last" = "#7cae00",
-  "minimum" = "#00bfc4",
-  "maximum" = "#c77cff"
-)
-
-df2 <- data.frame(
-  var1 = 1:2,
-  var2 = 1:2
-)
-
-p <- ggplot(df2, aes(x = var1, y = var2)) +
+## ----pointless-order, fig.height = 3, fig.show = 'hold'-----------------------
+df2 <- data.frame(x = 1:2, y = 1:2)
+p2 <- ggplot(df2, aes(x, y)) +
   geom_path() +
-  coord_equal() +
-  scale_color_manual(values = cols)
+  coord_equal()
 
-# same as location = 'all'
-p + geom_pointless(aes(color = after_stat(location)),
-  location = c("first", "last", "minimum", "maximum"),
-  size = 3
+p2 + geom_pointless(aes(colour = after_stat(location)),
+  location = c("first", "last", "minimum", "maximum"), size = 4
 ) +
-  labs(subtitle = "same as location = 'all'")
+  labs(subtitle = "first on top")
 
-## -----------------------------------------------------------------------------
-# reversed order
-p + geom_pointless(aes(color = after_stat(location)),
-  location = c("maximum", "minimum", "last", "first"),
-  size = 3
+p2 + geom_pointless(aes(colour = after_stat(location)),
+  location = c("maximum", "minimum", "last", "first"), size = 4
 ) +
-  labs(subtitle = "custom order")
+  labs(subtitle = "maximum on top")
 
-## -----------------------------------------------------------------------------
-# same as location = 'all' again
-p + geom_pointless(aes(color = after_stat(location)),
-  location = c("maximum", "minimum", "last", "first", "all"),
-  size = 3
+## ----pointless-facets, fig.height = 7-----------------------------------------
+ggplot(
+  subset(economics_long, variable %in% c("psavert", "unemploy")),
+  aes(x = date, y = value)
 ) +
-  labs(subtitle = "same as location = 'all' again")
+  geom_line(colour = "#333333") +
+  geom_pointless(
+    aes(colour = after_stat(location)),
+    location = c("minimum", "maximum"),
+    size = 3
+  ) +
+  stat_pointless(
+    geom = "text",
+    aes(label = after_stat(y)),
+    location = c("minimum", "maximum"),
+    hjust = -.55) +
+  facet_wrap(vars(variable), ncol = 1, scales = "free_y") +
+  theme(legend.position = "bottom") +
+  labs(x = NULL, y = NULL, colour = NULL)
 
-## ----stat---------------------------------------------------------------------
+## ----pointless-hline, fig.height = 3------------------------------------------
 set.seed(42)
-ggplot(data.frame(x = 1:10, y = sample(1:10)), aes(x, y)) +
+df3 <- data.frame(x = 1:10, y = sample(10))
+
+ggplot(df3, aes(x, y)) +
   geom_line() +
   stat_pointless(
-    aes(yintercept = y, color = after_stat(location)),
+    aes(yintercept = y, colour = after_stat(location)),
     location = c("minimum", "maximum"),
     geom = "hline"
   ) +
-  guides(color = guide_legend(reverse = TRUE))
-
-## ----default_lexis------------------------------------------------------------
-df1 <- data.frame(
-  key = c("A", "B", "B", "C", "D"),
-  x = c(0, 1, 6, 5, 6),
-  y = c(5, 4, 10, 8, 10)
-)
-
-p <- ggplot(df1, aes(x = x, xend = y, color = key)) +
-  coord_equal()
-p + geom_lexis()
-
-## ----gap_filler, fig.show='hold'----------------------------------------------
-p + geom_lexis(gap_filler = FALSE)
-
-## ----after_stat---------------------------------------------------------------
-p + geom_lexis(
-  aes(linetype = after_stat(type)),
-  point_show = FALSE
-) +
-  scale_linetype_identity()
-
-## ----numeric------------------------------------------------------------------
-
-df1 <- data.frame(
-  start = c(2019, 2021),
-  end = c(2022, 2022),
-  key = c("A", "B")
-)
-
-ggplot(df1, aes(x = start, xend = end, group = key)) +
-  geom_lexis() +
-  coord_fixed()
-
-## ----dates-and-times, fig.show='hold'-----------------------------------------
-# Date
-fun <- function(i, class) as.Date(paste0(i, "-01-01"))
-df1[, c("start", "end")] <- lapply(df1[, c("start", "end")], fun)
-p1 <- ggplot(df1, aes(x = start, xend = end, group = key)) +
-  geom_lexis() +
-  labs(y = "days") +
-  coord_fixed()
-
-# POSIXct
-df2 <- df1
-df2[, c("start", "end")] <- lapply(df2[, c("start", "end")], as.POSIXct)
-p2 <- ggplot(df2, aes(x = start, xend = end, group = key)) +
-  geom_lexis() +
-  labs(y = "seconds") +
-  coord_fixed()
-
-p1
-p2
-
-## ----transformation, fig.show='hold'------------------------------------------
-# years, roughly
-p1 +
-  scale_y_continuous(
-    breaks = 0:3 * 365.25, # or for p2: 0:3*365.25*86400
-    labels = function(i) floor(i / 365.25) # floor(i / 365.25*86400)
-  ) +
-  labs(y = "years")
-
-## ----geom-chaikin-intro, fig.show='hold'--------------------------------------
-set.seed(42)
-dat <- data.frame(
-  x = seq.int(10),
-  y = sample(15:30, 10)
-)
-
-p1 <- ggplot(dat, aes(x, y)) +
-  geom_line(linetype = "12")
-
-p1 +
-  geom_chaikin()
-
-## ----geom-catenary-intro, fig.show='hold'-------------------------------------
-ggplot(data.frame(x = c(0, 1), y = c(1, 1)), aes(x, y)) +
-  geom_catenary() +
-  ylim(0, 1)
-
-## ----geom-catenary-chainLength, fig.show='hold'-------------------------------
-ggplot(data.frame(x = c(0, 1), y = c(1, 1)), aes(x, y)) +
-  geom_catenary(chainLength = 1.5)  +
-  ylim(0, 1)
-
-## ----geom-catenary-chainLength-two-obs, fig.show='hold'-----------------------
-ggplot(data.frame(x = c(0, 1, 4), y = c(1, 1, 1)), aes(x, y)) +
-  geom_catenary()
-
-## ----geom-catenary-chainLength-minimum, fig.show='hold'-----------------------
-ggplot(data.frame(x = c(0, 1, 4), y = c(1, 1, 1)), aes(x, y)) +
-  geom_catenary(chainLength = 4)
-
-## ----geom-catenary-chainLength-individual, fig.show='hold'--------------------
-ggplot(data.frame(x = c(0, 1), y = 1),
-       aes(x, y)) + 
-  lapply(2:10, function(chainLength) {
-    geom_catenary(chainLength = chainLength)
-  }
-)
+  theme(legend.position = "bottom")
 

@@ -1,35 +1,34 @@
 Package: ggpointless
-Title: Additional Geometries and Stats for 'ggplot2'
-Version: 0.1.0
+Title: Extra Geometries and Stats for 'ggplot2'
+Version: 0.2.0
 Authors@R: 
     person(
      given = "Markus",
      family = "Döring",
      email = "m4rkus.doering@gmail.com",
      role = c("aut", "cre", "cph"))
-Description: An (aspirational) collection of additional geometries and 
-    statistics for 'ggplot2'. 
+Description: A collection of layers for 'ggplot2'. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 URL: https://flrd.github.io/ggpointless/,
         https://github.com/flrd/ggpointless
 BugReports: https://github.com/flrd/ggpointless/issues
-Depends: ggplot2 (>= 3.4.0), R (>= 3.3)
+Depends: ggplot2 (>= 4.0.0), R (>= 4.2.0)
 Suggests: knitr, covr, testthat (>= 3.0.0), rmarkdown, ragg, scales,
-        ggtext, ggrepel, vdiffr (>= 1.0.0), spelling
+        vdiffr (>= 1.0.0), spelling, withr
 Config/testthat/edition: 3
-LazyData: true
 VignetteBuilder: knitr
-Collate: 'aaa.R' 'data.R' 'geom-catenary.R' 'geom-chaikin.R'
-        'legend-draw.R' 'geom-lexis.R' 'geom-pointless.R'
-        'ggpointless-package.R' 'stat-catenary.R' 'stat-lexis.R'
-        'stat-pointless.R' 'stat_chaikin.R' 'utils.R'
-Imports: lifecycle, rlang
-Language: en-US
+Collate: 'aaa.R' 'geom-area-fade.R' 'geom-catenary.R' 'geom-chaikin.R'
+        'geom-fourier.R' 'geom-lexis.R' 'geom-point-glow.R'
+        'geom-pointless.R' 'ggpointless-package.R' 'stat-catenary.R'
+        'stat-fourier.R' 'stat-lexis.R' 'stat-pointless.R'
+        'stat-chaikin.R'
+Imports: cli, grid, lifecycle, rlang, stats
+Language: en-GB
 NeedsCompilation: no
-Packaged: 2024-02-08 15:54:38 UTC; markusdoring
+Packaged: 2026-03-09 11:25:11 UTC; markus
 Author: Markus Döring [aut, cre, cph]
 Maintainer: Markus Döring <m4rkus.doering@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-02-09 00:30:15 UTC
+Date/Publication: 2026-03-09 11:50:02 UTC
